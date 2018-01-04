@@ -983,15 +983,21 @@ static void overrideMethod(Class cls, NSString *selectorName, JSValue *function,
 
                 NSUInteger valueSize = 0;
                 NSGetSizeAndAlignment(typeDescription, &valueSize, NULL);
-                if (valueSize <= 8 ) {//32位
-                    methodReturnsStructValue = NO;
-                }
-              #if defined(__LP64__) && __LP64__
-                if (valueSize <= 16) {//64位
-                    methodReturnsStructValue = NO;
-                }
-              #endif
-      
+            
+#if defined(__arm__)
+            if (valueSize <= 4 ) {//32位真机
+                methodReturnsStructValue = NO;
+            }
+            
+#elif defined(__LP64__) && __LP64__
+            if (valueSize <= 16) {//64位模拟器
+                methodReturnsStructValue = NO;
+            }
+#else
+            if (valueSize <= 8 ) {//32位模拟器
+                methodReturnsStructValue = NO;
+            }
+#endif
         }
         if (methodReturnsStructValue) {
             msgForwardIMP = (IMP)_objc_msgForward_stret;
